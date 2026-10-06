@@ -1,0 +1,12 @@
+# Builtbinary
+mihomo-exporter
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Prometheus local data
+data/
