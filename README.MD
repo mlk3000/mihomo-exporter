@@ -15,6 +15,7 @@ go build -o mihomo-exporter .
 - mihomo_active_connections
 - mihomo_download_bytes_total 
 - mihomo_upload_bytes_total
+- mihomo_memory_usage
 
 ## Endpoints
 - /metrics

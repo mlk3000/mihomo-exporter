@@ -9,7 +9,9 @@ type ConnectionsResponse struct {
 	DownloadTotal int64        `json:"downloadTotal"`
 	UploadTotal   int64        `json:"uploadTotal"`
 	Connections   []Connection `json:"connections"`
+	Memory        int64        `json:"memory"`
 }
+
 type Connection struct {
 	ID       string `json:"id"`
 	Upload   int64  `json:"upload"`
@@ -30,6 +32,7 @@ func (c ConnectionsResponse) PrintStats() {
 	fmt.Println("connections:", len(c.Connections))
 	fmt.Println("upload:", c.UploadTotal)
 	fmt.Println("download:", c.DownloadTotal)
+	fmt.Println("memory: ", c.Memory)
 	// for i, conn := range c.Connections[0:3] {
 	// 	fmt.Printf("%d\nID:%s\nUpload:%d\nDownload:%d\n\n", i, conn.Id, conn.Upload, conn.Download)
 	// }

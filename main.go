@@ -58,6 +58,7 @@ func main() {
 		activeConnections,
 		uploadTotal,
 		downloadTotal,
+		memUsage,
 	)
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {

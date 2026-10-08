@@ -23,11 +23,19 @@ var downloadTotal = prometheus.NewGauge(
 	},
 )
 
+var memUsage = prometheus.NewGauge(
+	prometheus.GaugeOpts{
+		Name: "mihomo_memory_usage",
+		Help: "Memory usage of mihomo",
+	},
+)
+
 func updateMetrics(ch <-chan ConnectionsResponse) {
 	for connections := range ch {
 		activeConnections.Set(float64(len(connections.Connections)))
 		uploadTotal.Set(float64(connections.UploadTotal))
 		downloadTotal.Set(float64(connections.DownloadTotal))
+		memUsage.Set(float64(connections.Memory))
 	}
 
 }
