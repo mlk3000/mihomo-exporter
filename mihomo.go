@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"strconv"
 )
 
 type ConnectionsResponse struct {
@@ -10,6 +12,7 @@ type ConnectionsResponse struct {
 	UploadTotal   int64        `json:"uploadTotal"`
 	Connections   []Connection `json:"connections"`
 }
+
 type Connection struct {
 	ID       string `json:"id"`
 	Upload   int64  `json:"upload"`
@@ -33,6 +36,27 @@ func (c ConnectionsResponse) PrintStats() {
 	// for i, conn := range c.Connections[0:3] {
 	// 	fmt.Printf("%d\nID:%s\nUpload:%d\nDownload:%d\n\n", i, conn.Id, conn.Upload, conn.Download)
 	// }
+}
+func getMemoryUsage(baseURL string) (float64, error) {
+	resp, err := customClient.Get(baseURL + "/memory")
+	if err != nil {
+		return 0, err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode > 300 {
+		return 0, fmt.Errorf("mihomo return status %s", resp.Status)
+	}
+	defer resp.Body.Close()
+	memUse, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := strconv.ParseFloat(string(memUse), 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return res, nil
 }
 
 func getConnections(baseURL string) (ConnectionsResponse, error) {

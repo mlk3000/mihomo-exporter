@@ -1,6 +1,8 @@
 package main
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"github.com/prometheus/client_golang/prometheus"
+)
 
 var activeConnections = prometheus.NewGauge(
 	prometheus.GaugeOpts{
@@ -23,11 +25,24 @@ var downloadTotal = prometheus.NewGauge(
 	},
 )
 
-func updateMetrics(ch <-chan ConnectionsResponse) {
+var memoryUsage = prometheus.NewGauge(
+	prometheus.GaugeOpts{
+		Name: "mihomo_memory_usage",
+		Help: "Memory usage measured in bytes",
+	},
+)
+
+func updateConnectionMetrics(ch <-chan ConnectionsResponse) {
 	for connections := range ch {
 		activeConnections.Set(float64(len(connections.Connections)))
 		uploadTotal.Set(float64(connections.UploadTotal))
 		downloadTotal.Set(float64(connections.DownloadTotal))
 	}
 
+}
+
+func updateMemMetrics(ch <-chan float64) {
+	for MemUsage := range ch {
+		memoryUsage.Set(float64(MemUsage))
+	}
 }

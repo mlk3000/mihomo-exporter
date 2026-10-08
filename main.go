@@ -10,7 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func collect(baseURL string, interval time.Duration, ch chan<- ConnectionsResponse) {
+func collectConnections(baseURL string, interval time.Duration, ch chan<- ConnectionsResponse) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
@@ -21,6 +21,20 @@ func collect(baseURL string, interval time.Duration, ch chan<- ConnectionsRespon
 			continue
 		}
 		ch <- connections
+	}
+}
+
+func collectMemUsage(baseURL string, interval time.Duration, ch chan<- float64) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		memUsage, err := getMemoryUsage(baseURL)
+		if err != nil {
+			fmt.Println("Collection error! ", err)
+			continue
+		}
+		ch <- memUsage
 	}
 }
 
@@ -50,14 +64,19 @@ func main() {
 	fmt.Printf("meta: %v\nversion: %s\n", version.Meta, version.Version)
 
 	ch := make(chan ConnectionsResponse)
+	chMem := make(chan float64)
 
-	go collect(*mihomoAddr, *interval, ch)
-	go updateMetrics(ch)
+	go collectConnections(*mihomoAddr, *interval, ch)
+	go updateConnectionMetrics(ch)
+
+	go collectMemUsage(*mihomoAddr, *interval, chMem)
+	go updateMemMetrics(chMem)
 
 	prometheus.MustRegister(
 		activeConnections,
 		uploadTotal,
 		downloadTotal,
+		memoryUsage,
 	)
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
